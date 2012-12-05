@@ -106,6 +106,9 @@ def searchAll(phoneNumber)
 
   # add calls to higher-priority search result functions here.
 
+  if (phoneNumber == "Anonymous")
+    return
+
   if (res == nil)
     res = searchOTE(phoneNumber)
   end
