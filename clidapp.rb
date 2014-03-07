@@ -6,7 +6,7 @@ require "unicode_utils/downcase"
 require "unicode_utils/titlecase"
 
 GreekChars = Array['α','β','γ','δ','ε','ζ','η','θ','ι','κ','λ','μ','ν','ξ','ο','π','ρ','σ','τ','υ','φ','χ','ψ','ω','ς']
-LatinChars = Array['a','b','g','d','e','z','i','th','i','k','l','m','n','x','o','p','r','s','t','i','f','ch','ps','o','s']
+LatinChars = Array['a','v','g','d','e','z','i','th','i','k','l','m','n','x','o','p','r','s','t','i','f','ch','ps','o','s']
 SpecChars = Array['ο','α','ε']
 
 
