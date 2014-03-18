@@ -82,14 +82,14 @@ def searchOTE(phoneNo)
 
 
   if (match != nil) 
-    pageurl = "http://11888.ote.gr/web/guest/white-pages/search?who=" + match[1]
+    pageurl = "http://11888.ote.gr/web/guest/list-names?_wpType=number&_wpPhone=" + match[1]
 
     a = Mechanize.new
     page = a.get(pageurl)
 
-    result = page.parser.xpath("//*[@id=\"_whitepagessearchportlet_WAR_yellowpagesportlet_fm\"]/div[3]/div[3]/div/div[1]/div[1]/h3").to_s
+    result = page.parser.xpath("//*[@id=\"p_p_id_whitepageslist_WAR_ote11888whiteyellowpagesportlet_\"]/div/div/div/ul/li/div[2]/span").to_s
 
-    filterRegEx = /<h3>(.*)<span><\/span>/mi
+    filterRegEx = /<span class="title">(.*)<\/span>/mi
 
     filtResult = filterRegEx.match result
 
