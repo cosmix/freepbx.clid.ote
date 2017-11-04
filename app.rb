@@ -101,6 +101,7 @@ def searchOTE(phoneNo)
       unless parsed['data']['wp'].empty?
         nameComps = parsed['data']['wp'][0]['name']
         fullName = "#{nameComps['first'] or ''} #{nameComps['last']}"
+        fullName.strip!
       end
     rescue JSON::ParserError
       fullName = nil
