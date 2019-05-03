@@ -1,4 +1,3 @@
-# encoding: utf-8
 require 'rubygems'
 require 'sinatra'
 require 'mechanize'
@@ -6,57 +5,7 @@ require 'unicode_utils/downcase'
 require 'unicode_utils/titlecase'
 require 'json'
 
-GreekChars = Array['α', 'β', 'γ', 'δ', 'ε', 'ζ', 'η', 'θ', 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π', 'ρ', 'σ', 'τ', 'υ', 'φ', 'χ', 'ψ', 'ω', 'ς']
-LatinChars = Array['a', 'v', 'g', 'd', 'e', 'z', 'i', 'th', 'i', 'k', 'l', 'm', 'n', 'x', 'o', 'p', 'r', 's', 't', 'i', 'f', 'ch', 'ps', 'o', 's']
-SpecChars = Array['ο', 'α', 'ε']
-
-def transl(inString)
-  outString = ''
-  inString = UnicodeUtils.downcase(inString)
-
-  specCharFound = nil
-
-  inString.each_char do |ch|
-    if GreekChars.include?(ch)
-
-      if !specCharFound.nil?
-        if specCharFound == "ο"
-          if ch == "υ"
-            outString += 'u'
-            specCharFound = nil
-            next
-          end
-        elsif specCharFound == "α"
-          if ch == "υ"
-            outString += 'f'
-            specCharFound = nil
-            next
-          elsif ch == "ι"
-            outString += 'e'
-            specCharFound = nil
-            next
-          end
-        elsif specCharFound == "ε"
-          if ch == "υ"
-            outString += 'f'
-            specCharFound = nil
-            next
-          end
-        end
-
-        outString += LatinChars[GreekChars.index(ch)]
-        specCharFound = nil
-
-      else
-        specCharFound = ch if SpecChars.include?(ch)
-        outString += LatinChars[GreekChars.index(ch)]
-      end
-    else
-      outString += ch
-    end
-  end
-  UnicodeUtils.titlecase(outString)
-end
+require_relative 'transliterator'
 
 def searchOTE(phoneNo)
   athensNo = /^(2\d{9}|69\d{8})/
@@ -77,18 +26,16 @@ def searchOTE(phoneNo)
     # Get the CSRF token.
     tokenRE = /csrftoken=(.*?);/
 
-    csrftoken = "1"
+    csrftoken = '1'
     csrftokenMatches = tokenRE.match cookies
 
-    if !csrftokenMatches.nil?
-      csrftoken = csrftokenMatches[1]
-    end
+    csrftoken = csrftokenMatches[1] unless csrftokenMatches.nil?
 
     a.pre_connect_hooks << lambda do |_agent, request|
       request['X-Requested-With'] = 'XMLHttpRequest'
       request['Cookie'] = 'csrftoken=' + csrftoken + ';'
       request['Accept'] = 'Accept: application/json, text/javascript, */*; q=0.01'
-      request['Referer'] = "https://www.11888.gr"
+      request['Referer'] = 'https://www.11888.gr'
     end
 
     pageurl = 'https://www.11888.gr/search/reverse/?phone=' + match[1]
@@ -100,14 +47,14 @@ def searchOTE(phoneNo)
       parsed = JSON.parse(page.content)
       unless parsed['data']['wp'].empty?
         nameComps = parsed['data']['wp'][0]['name']
-        fullName = "#{nameComps['first'] or ''} #{nameComps['last']}"
+        fullName = "#{nameComps['first'] || ''} #{nameComps['last']}"
         fullName.strip!
       end
     rescue JSON::ParserError
       fullName = nil
     end
 
-    transl(fullName).gsub(/<\/?.*?>/, '').gsub(/\n/, ' - ') unless fullName.nil?
+    Transliterator.grToLat(fullName).gsub(%r{</?.*?>}, '').gsub(/\n/, ' - ') unless fullName.nil?
   end
 end
 
