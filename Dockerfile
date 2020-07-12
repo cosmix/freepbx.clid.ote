@@ -1,7 +1,7 @@
-FROM ruby:2.4.2-alpine3.6
+FROM ruby:alpine3.12
 
 RUN mkdir /clidapp
-COPY app.rb Gemfile Gemfile.lock config.ru /clidapp/
+COPY transliterator.rb app.rb Gemfile Gemfile.lock config.ru /clidapp/
 WORKDIR /clidapp/
 
 RUN apk add --update build-base linux-headers && gem install bundler && \
@@ -18,9 +18,8 @@ RUN apk add --update build-base linux-headers && gem install bundler && \
   musl-dev \
   fortify-headers \
   linux-headers \
-  binutils-libs \
   mpc1 \
-  mpfr3 \
+  mpfr4 \
   isl \
   gmp \
   libgcc \
