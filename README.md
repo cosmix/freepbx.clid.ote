@@ -6,7 +6,7 @@ This is a trivial `Sinatra`-based service using `Mechanize` to scrape caller id 
 Installation
 ============
 
-Note that current version of this script is dockerized. You will, obviously, require Docker to build the image and run the container.
+Note that the current version of this script is dockerized. You will, obviously, require Docker to build the image and run the container.
 
 If you prefer to do this the old-fashioned way (say for development purposes), you can use `bundler` to get the appropriate gems installed on your system. Depending on your needs/volume of requests, you may want to setup something simple or a more elaborate setup with `nginx` or `haproxy` in front of multiple instances etc. All the dependencies are available as gems and you will be able to install everything you need using the provided `Gemfile`.
 
