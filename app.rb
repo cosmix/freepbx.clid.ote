@@ -15,47 +15,47 @@ def searchOTE(phoneNo)
 
   match = greekNo.match phoneNo if match.nil?
 
-  unless match.nil?
-    pageurl = 'https://www.11888.gr'
+  return if match.nil?
 
-    a = Mechanize.new
-    a.user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36'
-    page = a.get(pageurl)
-    cookies = page.header['Set-Cookie']
+  pageurl = 'https://www.11888.gr'
 
-    # Get the CSRF token.
-    tokenRE = /csrftoken=(.*?);/
+  a = Mechanize.new
+  a.user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36'
+  page = a.get(pageurl)
+  cookies = page.header['Set-Cookie']
 
-    csrftoken = '1'
-    csrftokenMatches = tokenRE.match cookies
+  # Get the CSRF token.
+  tokenRE = /csrftoken=(.*?);/
 
-    csrftoken = csrftokenMatches[1] unless csrftokenMatches.nil?
+  csrftoken = '1'
+  csrftokenMatches = tokenRE.match cookies
 
-    a.pre_connect_hooks << lambda do |_agent, request|
-      request['X-Requested-With'] = 'XMLHttpRequest'
-      request['Cookie'] = 'csrftoken=' + csrftoken + ';'
-      request['Accept'] = 'Accept: application/json, text/javascript, */*; q=0.01'
-      request['Referer'] = 'https://www.11888.gr'
-    end
+  csrftoken = csrftokenMatches[1] unless csrftokenMatches.nil?
 
-    pageurl = 'https://www.11888.gr/search/reverse/?phone=' + match[1]
-
-    # Second call for the actual data (returned in JSON)
-    page = a.get(pageurl)
-
-    begin
-      parsed = JSON.parse(page.content)
-      unless parsed['data']['wp'].empty?
-        nameComps = parsed['data']['wp'][0]['name']
-        fullName = "#{nameComps['first'] || ''} #{nameComps['last']}"
-        fullName.strip!
-      end
-    rescue JSON::ParserError
-      fullName = nil
-    end
-
-    Transliterator.grToLat(fullName).gsub(%r{</?.*?>}, '').gsub(/\n/, ' - ') unless fullName.nil?
+  a.pre_connect_hooks << lambda do |_agent, request|
+    request['X-Requested-With'] = 'XMLHttpRequest'
+    request['Cookie'] = 'csrftoken=' + csrftoken + ';'
+    request['Accept'] = 'Accept: application/json, text/javascript, */*; q=0.01'
+    request['Referer'] = 'https://www.11888.gr'
   end
+
+  pageurl = 'https://www.11888.gr/search/reverse/?phone=' + match[1]
+
+  # Second call for the actual data (returned in JSON)
+  page = a.get(pageurl)
+
+  begin
+    parsed = JSON.parse(page.content)
+    unless parsed['data']['wp'].empty?
+      nameComps = parsed['data']['wp'][0]['name']
+      fullName = "#{nameComps['first'] || ''} #{nameComps['last']}"
+      fullName.strip!
+    end
+  rescue JSON::ParserError
+    fullName = nil
+  end
+
+  Transliterator.gr_to_lat(CGI.escapeHTML(fullName)).gsub(%r{</?.*?>}, '').gsub(/\n/, ' - ') unless fullName.nil?
 end
 
 def searchAll(phoneNumber)

@@ -2,55 +2,59 @@ require 'unicode_utils/downcase'
 require 'unicode_utils/titlecase'
 
 module Transliterator
-  GreekChars = Array['α', 'β', 'γ', 'δ', 'ε', 'ζ', 'η', 'θ', 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π', 'ρ', 'σ', 'τ', 'υ', 'φ', 'χ', 'ψ', 'ω', 'ς']
-  LatinChars = Array['a', 'v', 'g', 'd', 'e', 'z', 'i', 'th', 'i', 'k', 'l', 'm', 'n', 'x', 'o', 'p', 'r', 's', 't', 'i', 'f', 'ch', 'ps', 'o', 's']
-  SpecChars = Array['ο', 'α', 'ε']
+  GREEK_TO_LATIN = {
+    # Basic mappings
+    'α' => 'a', 'β' => 'b', 'γ' => 'g', 'δ' => 'd', 'ε' => 'e',
+    'ζ' => 'z', 'η' => 'i', 'θ' => 'th', 'ι' => 'i', 'κ' => 'k',
+    'λ' => 'l', 'μ' => 'm', 'ν' => 'n', 'ξ' => 'x', 'ο' => 'o',
+    'π' => 'p', 'ρ' => 'r', 'σ' => 's', 'τ' => 't', 'υ' => 'y',
+    'φ' => 'f', 'χ' => 'ch', 'ψ' => 'ps', 'ω' => 'o', 'ς' => 's'
+  }.freeze
+  # Special rules for DIPTHONGS followed by specific characters
+  # Including 'ευ' and 'αυ' cases based on the next character
 
-  def self.grToLat(inString)
-    outString = ''
-    inString = UnicodeUtils.downcase(inString)
+  DIPTHONGS = {
+    'ευ' => { 'default' => 'ef', 'exceptions' => 'ev' },
+    'αυ' => { 'default' => 'af', 'exceptions' => 'av' }
+  }.freeze
 
-    specCharFound = nil
+  VOWELS = %w[α ε η ι ο υ ω].freeze
 
-    inString.each_char do |ch|
-      if GreekChars.include?(ch)
+  def self.gr_to_lat(in_string) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    out_string = ''
+    normalized_string = UnicodeUtils.downcase(in_string).unicode_normalize(:nfd).gsub(/[\u0300-\u036f]/, '')
 
-        if !specCharFound.nil?
-          if specCharFound == 'ο'
-            if ch == 'υ'
-              outString += 'u'
-              specCharFound = nil
-              next
-            end
-          elsif specCharFound == 'α'
-            if ch == 'υ'
-              outString += 'f'
-              specCharFound = nil
-              next
-            elsif ch == 'ι'
-              outString += 'e'
-              specCharFound = nil
-              next
-            end
-          elsif specCharFound == 'ε'
-            if ch == 'υ'
-              outString += 'f'
-              specCharFound = nil
-              next
-            end
-          end
+    i = 0
+    while i < normalized_string.length
+      ch = normalized_string[i]
+      next_ch = normalized_string[i + 1] || ''
 
-          outString += LatinChars[GreekChars.index(ch)]
-          specCharFound = nil
+      # Handle DIPTHONGS
+      diphthong_handled = false
+      DIPTHONGS.each do |diphthong, rules|
+        next unless (ch + next_ch).start_with?(diphthong)
 
+        out_string += if i + 2 < normalized_string.length && VOWELS.include?(normalized_string[i + 2])
+                        rules['exceptions']
+                      else
+                        rules['default']
+                      end
+        i += 2 # Skip the next character as part of diphthong
+        diphthong_handled = true
+        break
+      end
+
+      unless diphthong_handled
+        if GREEK_TO_LATIN[ch]
+          out_string += GREEK_TO_LATIN[ch]
+          i += 1
         else
-          specCharFound = ch if SpecChars.include?(ch)
-          outString += LatinChars[GreekChars.index(ch)]
+          out_string += ch
+          i += 1
         end
-      else
-        outString += ch
       end
     end
-    UnicodeUtils.titlecase(outString)
+
+    UnicodeUtils.titlecase(out_string)
   end
 end
