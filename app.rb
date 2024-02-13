@@ -55,7 +55,7 @@ def searchOTE(phoneNo)
     fullName = nil
   end
 
-  Transliterator.gr_to_lat(CGI.escapeHTML(fullName)).gsub(%r{</?.*?>}, '').gsub(/\n/, ' - ') unless fullName.nil?
+  Transliterator.gr_to_lat(CGI.escapeHTML(fullName)).gsub(/\n/, ' - ') unless fullName.nil?
 end
 
 def searchAll(phoneNumber)
