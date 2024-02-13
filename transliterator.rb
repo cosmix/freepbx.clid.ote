@@ -15,7 +15,8 @@ module Transliterator
 
   DIPTHONGS = {
     'ευ' => { 'default' => 'ef', 'exceptions' => 'ev' },
-    'αυ' => { 'default' => 'af', 'exceptions' => 'av' }
+    'αυ' => { 'default' => 'af', 'exceptions' => 'av' },
+    'ου' => { 'default' => 'ou', 'exceptions' => 'u' },
   }.freeze
 
   VOWELS = %w[α ε η ι ο υ ω].freeze

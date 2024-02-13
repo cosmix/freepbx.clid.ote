@@ -44,6 +44,10 @@ def searchOTE(phoneNo)
   # Second call for the actual data (returned in JSON)
   page = a.get(pageurl)
 
+  if page.code != '200'
+    return ''
+  end
+
   begin
     parsed = JSON.parse(page.content)
     unless parsed['data']['wp'].empty?
@@ -68,5 +72,11 @@ def searchAll(phoneNumber)
 end
 
 get '/' do
-  searchAll(params[:phone]).to_s
+  res = searchAll(params[:phone])
+
+  if res == nil or res.to_s == ''
+    Array[404, '']
+  else
+    Array[200,res.to_s]
+  end
 end
