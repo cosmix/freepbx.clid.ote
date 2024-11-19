@@ -113,7 +113,7 @@ GEM
     unicorn (6.1.0)
       kgio (~> 2.6)
       raindrops (~> 0.7)
-    webrick (1.8.1)
+    webrick (1.8.2)
     webrobots (0.1.2)
 
 PLATFORMS
