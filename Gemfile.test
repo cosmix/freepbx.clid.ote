@@ -1,0 +1,13 @@
+source 'https://rubygems.org'
+
+# Existing dependencies (include from original Gemfile)
+gem 'sinatra'
+gem 'mechanize'
+gem 'unicode_utils'
+gem 'json'
+
+# Testing dependencies
+gem 'minitest', '~> 5.14'
+gem 'rack-test', '~> 1.1'  # For testing Sinatra routes
+gem 'webmock', '~> 3.12'   # For mocking HTTP requests
+gem 'mocha', '~> 1.12'     # For mocking and stubbing
