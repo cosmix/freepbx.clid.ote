@@ -1,4 +1,4 @@
-require_relative 'Transliterator'
+require_relative 'transliterator'
 
 describe Transliterator do
   describe '#gr_to_lat' do
