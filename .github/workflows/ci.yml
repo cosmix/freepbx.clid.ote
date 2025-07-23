@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        ruby-version: ['3.0', '3.1', '3.2']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby ${{ matrix.ruby-version }}
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true
+    
+    - name: Install test dependencies
+      run: |
+        gem install webmock rack-test mocha rspec
+        bundle install --gemfile=Gemfile.test
+    
+    - name: Run main test suite
+      run: ./run_tests.sh
+    
+    - name: Run RSpec tests
+      run: |
+        if [ -f transliterator_spec.rb ]; then
+          rspec transliterator_spec.rb --format documentation
+        else
+          echo "No RSpec tests found"
+        fi
