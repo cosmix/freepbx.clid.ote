@@ -34,7 +34,7 @@ jobs:
     - name: Run RSpec tests
       run: |
         if [ -f transliterator_spec.rb ]; then
-          rspec transliterator_spec.rb --format documentation
+          bundle exec rspec transliterator_spec.rb --format documentation
         else
           echo "No RSpec tests found"
         fi
