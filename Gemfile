@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # Version constraints based on current Gemfile.lock to prevent major version updates
-gem "sinatra", "~> 4.1.1"
+gem "sinatra", "~> 4.2.0"
 gem "mechanize", "~> 2.14.0"
 gem "unicode_utils", "~> 1.4.0"
 gem "unicorn", "~> 6.1.0"
